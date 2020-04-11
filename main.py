@@ -154,10 +154,12 @@ class Window(Frame):
             forecastData = self.model.get_predict()
             actualData = self.model.get_actual()
             self.a.set_title('The total weekly forecast sales volume of the retail chain')
+            self.change_data_tree()
         else:
             forecastData = self.model.get_predict(int(self.comboboxForecast.get()))
             actualData = self.model.get_actual(int(self.comboboxForecast.get()))
             self.a.set_title("The weekly forecast sales volume of the store's id: " + self.comboboxForecast.get())
+            self.change_data_tree(idx = self.comboboxForecast.get())
         df = sum_weekly_sale_by_week(pd_data)
         theta = df.Date
         self.a.plot(theta.iloc[-33:], actualData, label = 'The actuall data')
