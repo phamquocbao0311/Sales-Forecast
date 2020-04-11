@@ -10,6 +10,9 @@ from preprocessingData import read_data, read_datapd, sum_weekly_sale_by_week, g
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from model import Model
+from voiceRecognition import recognize_speech_from_mic
+import time
+import speech_recognition as sr
 
 class Window(Frame):
 
@@ -25,6 +28,8 @@ class Window(Frame):
         self.init_window()
 
         self.model = Model()
+        self.recognizer = sr.Recognizer()
+        self.microphone = sr.Microphone()
 
     def init_window(self):
         self.master.title('Sale Forecast')
@@ -36,7 +41,7 @@ class Window(Frame):
         self.label_chart.place(x = 40, y = 10)
 
         #Add button
-        self.button = Button(master=self.master, command='', text='Voice Recognition')
+        self.button = Button(master=self.master, text='Voice Recognition', command = lambda: self.regWin(Recognition).pack())
         self.button.pack()
         self.button.place(y = 875, x = 500)
 
@@ -134,35 +139,57 @@ class Window(Frame):
         self.button_show.pack()
         self.button_show.place(y=150, x=250)
 
-    def plot(self):
-        if str(self.combobox.get()) == 'All':
-            df = sum_weekly_sale_by_week(pd_data)
-            self.a.set_title('The total weekly sales volume of the retail chain')
-            self.change_data_tree()
+    def plot(self, voice = False, idx = None):
+        if voice == False:
+            if str(self.combobox.get()) == 'All':
+                df = sum_weekly_sale_by_week(pd_data)
+                self.a.set_title('The total weekly sales volume of the retail chain')
+                self.change_data_tree()
+            else:
+                df = sum_weekly_sale_by_week(pd_data, int(self.combobox.get()))
+                self.a.set_title("The weekly sales volume of the store's id: " + self.combobox.get())
+                self.change_data_tree(idx = self.combobox.get())
         else:
-            df = sum_weekly_sale_by_week(pd_data, int(self.combobox.get()))
-            self.a.set_title("The weekly sales volume of the store's id: " + self.combobox.get())
-            self.change_data_tree(idx = self.combobox.get())
+            if idx == None:
+                df = sum_weekly_sale_by_week(pd_data)
+                self.a.set_title('The total weekly sales volume of the retail chain')
+                self.change_data_tree()
+            else:
+                df = sum_weekly_sale_by_week(pd_data, int(self.number[0]))
+                self.a.set_title("The weekly sales volume of the store's id: " + self.number[0])
+                self.change_data_tree(idx=self.number[0])
         theta = df.Date
         r = df.Weekly_Sales
         self.a.plot(theta, r)
         self.canvas.draw()
         self.a.clear()
 
-    def plotForecast(self):
-        if str(self.comboboxForecast.get()) == 'All':
-            forecastData = self.model.get_predict()
-            actualData = self.model.get_actual()
-            self.a.set_title('The total weekly forecast sales volume of the retail chain')
-            self.change_data_tree()
+    def plotForecast(self, voice = False, idx = None):
+        if voice:
+            if idx == None:
+                forecastData = self.model.get_predict()
+                actualData = self.model.get_actual()
+                self.a.set_title('The total weekly forecast sales volume of the retail chain')
+                self.change_data_tree()
+            else:
+                forecastData = self.model.get_predict(idx)
+                actualData = self.model.get_actual(idx)
+                self.a.set_title("The weekly forecast sales volume of the store's id: " + idx)
+                self.change_data_tree(idx=idx)
         else:
-            forecastData = self.model.get_predict(int(self.comboboxForecast.get()))
-            actualData = self.model.get_actual(int(self.comboboxForecast.get()))
-            self.a.set_title("The weekly forecast sales volume of the store's id: " + self.comboboxForecast.get())
-            self.change_data_tree(idx = self.comboboxForecast.get())
+            if str(self.comboboxForecast.get()) == 'All':
+                forecastData = self.model.get_predict()
+                actualData = self.model.get_actual()
+                self.a.set_title('The total weekly forecast sales volume of the retail chain')
+                self.change_data_tree()
+            else:
+                forecastData = self.model.get_predict(int(self.comboboxForecast.get()))
+                actualData = self.model.get_actual(int(self.comboboxForecast.get()))
+                self.a.set_title("The weekly forecast sales volume of the store's id: " + self.comboboxForecast.get())
+                self.change_data_tree(idx = self.comboboxForecast.get())
         df = sum_weekly_sale_by_week(pd_data)
         theta = df.Date
-        self.a.plot(theta.iloc[-33:], actualData, label = 'The actuall data')
+        self.a.plot(theta.iloc[-33:], actualData, label = 'The actual data')
         self.a.plot(theta.iloc[-33:], forecastData, label = 'The predicted data')
         self.a.legend()
         self.canvas.draw()
@@ -209,11 +236,57 @@ class Window(Frame):
         self.button_show_forcast.pack()
         self.button_show_forcast.place(y=150, x=250)
 
+    def regWin(self, _class):
+        try:
+            if self.recognition.state() == "normal":
+                self.recognition.focus()
+        except:
+            self.recognition = Toplevel(self.master)
+            _class(self.recognition)
+
+        self.recognition.geometry("512x256")
+        self.recognition.resizable(0, 0)
+        self.titlevar = StringVar()
+        self.titlevar.set('Please press Speak button to start!')
+        self.titleLabel = Label(master = self.recognition, text = 'Voice Recognition', font = 'Times 16 bold italic', fg = 'blue').pack()
+        self.content = Label(master = self.recognition, textvariable = self.titlevar, font = 'Times 12', fg = 'blue').pack()
+        self.buttonForecast = Button(master=self.recognition, text='Start',
+                             command=self.voicReg)
+        self.buttonForecast.pack()
+        self.buttonForecast.place(x = 240, y = 128)
+
+    def voicReg(self):
+        guess = recognize_speech_from_mic(self.recognizer, self.microphone)
+        if guess["error"]:
+            self.titlevar.set('Error: '+ guess['error'])
+
+        if guess["transcription"]:
+            self.titlevar.set(guess['transcription'])
+            self.number = [int(s) for s in guess['transcription'].split() if s.isdigit()]
+            if 'report' in guess['transcription'].lower():
+                if 'all' in guess['transcription']:
+                    self.plot(voice=True)
+                else:
+                    if self.number:
+                        self.plot(voice=True, idx=self.number[0])
+            else:
+                if 'forecast' in guess['transcription'].lower():
+                    if 'all' in guess['transcription']:
+                        pass
+
+                pass
+        else:
+            self.titlevar.set("I didn't catch that. Please press the start button again!")
+
 class Report:
     def __init__(self, root):
         self.root = root
 
 class Forecast:
+    def __init__(self, root):
+        self.root = root
+
+class Recognition:
     def __init__(self, root):
         self.root = root
 
