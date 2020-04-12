@@ -11,7 +11,7 @@ from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from model import Model
 from voiceRecognition import recognize_speech_from_mic, convertStringToInt
-import time
+from tkinter import messagebox
 import speech_recognition as sr
 
 class Window(Frame):
@@ -41,7 +41,7 @@ class Window(Frame):
         self.label_chart.place(x = 40, y = 10)
 
         #Add button
-        self.button = Button(master=self.master, text='Voice Recognition', command = lambda: self.regWin(Recognition).pack())
+        self.button = Button(master=self.master, text='Voice Recognition',font = 'Times 14 ', command = lambda: self.regWin(Recognition).pack())
         self.button.pack()
         self.button.place(y = 875, x = 500)
 
@@ -66,7 +66,7 @@ class Window(Frame):
         self.filemenu = Menu(self.menubar, tearoff=0)
         self.filemenu.add_command(label="Import")
         self.filemenu.add_separator()
-        self.filemenu.add_command(label='Exit')
+        self.filemenu.add_command(label='Exit', command= self.master.destroy)
         self.menubar.add_cascade(label="File", menu=self.filemenu)
 
         self.fucntion = Menu(self.menubar, tearoff=0)
@@ -75,7 +75,7 @@ class Window(Frame):
         self.menubar.add_cascade(label="Function", menu=self.fucntion)
 
         self.help = Menu(self.menubar, tearoff=0)
-        self.help.add_command(label='Voice Recognition')
+        self.help.add_command(label='Voice Recognition', command = self.voiceHelp)
         self.help.add_command(label='About us')
         self.menubar.add_cascade(label='Help', menu=self.help)
 
@@ -97,13 +97,15 @@ class Window(Frame):
         self.scrollbarx.pack(side=BOTTOM, fill=X)
 
         for i in range(16):
-            self.tree.heading(column[i], text=column[i], anchor=W)
+            self.tree.heading(column[i], text=column[i], anchor=CENTER)
             if i == 0:
-                self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=0)
+                self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=0, anchor=CENTER)
             else:
-                self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=100)
+                self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=100, anchor=CENTER)
         self.tree.column('#16', stretch=NO, minwidth=100, width=100)
-
+        self.tree.tag_configure('odd', background='#E8E8E8')
+        self.tree.tag_configure('even', background='#f7f7f9')
+        self.tree.tag_configure('column', background='#b8dcff')
         self.change_data_tree()
         self.tree.pack(fill = X, expand = NO)
 
@@ -118,22 +120,22 @@ class Window(Frame):
         self.new.geometry("512x256")
         self.new.resizable(0,0)
 
-        self.combobox = ttk.Combobox(self.new, values = ['All'] + list(set(pd_data.Store)))
+        self.combobox = ttk.Combobox(self.new, values = ['All'] + list(set(pd_data.Store)),font = 'Times 14 ')
         self.combobox.pack()
         self.combobox.current(0) #combobox.get()
         self.combobox.place(x = 300, y = 20)
-        self.label_store = Label(master=self.new, text="Choose the id store:")
+        self.label_store = Label(master=self.new, text="Choose the id store:", font = 'Times 14 ')
         self.label_store.pack()
         self.label_store.place(x=20, y=20)
-        self.comboboxtime = ttk.Combobox(self.new, values=['Week'])
+        self.comboboxtime = ttk.Combobox(self.new, values=['Week'], font = 'Times 14 ')
         self.comboboxtime.pack()
         self.comboboxtime.current(0)  # combobox.get()
         self.comboboxtime.place(x=300, y=60)
-        self.label_time = Label(master=self.new, text="Choose the period:")
+        self.label_time = Label(master=self.new, text="Choose the period:", font = 'Times 14 ')
         self.label_time.pack()
         self.label_time.place(x=20, y=60)
 
-        self.button_show = Button(master=self.new, command=self.plot, text='Report')
+        self.button_show = Button(master=self.new, command=self.plot, text='Report', font = 'Times 14 ')
         self.button_show.pack()
         self.button_show.place(y=150, x=250)
 
@@ -200,11 +202,17 @@ class Window(Frame):
         print(idx)
         if idx == None:
             for i in range(len(data[:1000])):
-                self.tree.insert("", END, values=data[i][1:])
+                if i%2 == 0:
+                    self.tree.insert("", END, values=data[i][1:], tags = ('even',))
+                else:
+                    self.tree.insert("", END, values=data[i][1:], tags=('odd',))
         else:
             for i in range(len(data)):
                 if data[i][1] == idx:
-                    self.tree.insert("", END, values=data[i][1:])
+                    if i % 2 == 0:
+                        self.tree.insert("", END, values=data[i][1:], tags=('even',))
+                    else:
+                        self.tree.insert("", END, values=data[i][1:], tags=('odd',))
 
     def forecast_window(self, _class):
         try:
@@ -216,22 +224,22 @@ class Window(Frame):
         self.forcast.geometry("512x256")
         self.forcast.resizable(0, 0)
 
-        self.comboboxForecast = ttk.Combobox(self.forcast, values=['All'] + list(set(pd_data.Store)))
+        self.comboboxForecast = ttk.Combobox(self.forcast, values=['All'] + list(set(pd_data.Store)),font = 'Times 14 ')
         self.comboboxForecast.pack()
         self.comboboxForecast.current(0)  # combobox.get()
         self.comboboxForecast.place(x=300, y=20)
-        self.label_store_forcast = Label(master=self.forcast, text="Choose the id store:")
+        self.label_store_forcast = Label(master=self.forcast, text="Choose the id store:",font = 'Times 14 ')
         self.label_store_forcast.pack()
         self.label_store_forcast.place(x=20, y=20)
-        self.comboboxtimeForecast = ttk.Combobox(self.forcast, values=['Week'])
+        self.comboboxtimeForecast = ttk.Combobox(self.forcast, values=['Week'],font = 'Times 14 ')
         self.comboboxtimeForecast.pack()
         self.comboboxtimeForecast.current(0)  # combobox.get()
         self.comboboxtimeForecast.place(x=300, y=60)
-        self.label_time_forecast = Label(master=self.forcast, text="Choose the period:")
+        self.label_time_forecast = Label(master=self.forcast, text="Choose the period:",font = 'Times 14 ')
         self.label_time_forecast.pack()
         self.label_time_forecast.place(x=20, y=60)
 
-        self.button_show_forcast = Button(master=self.forcast, command=self.plotForecast, text='Forecast')
+        self.button_show_forcast = Button(master=self.forcast, command=self.plotForecast, text='Forecast',font = 'Times 14 ')
         self.button_show_forcast.pack()
         self.button_show_forcast.place(y=150, x=250)
 
@@ -291,6 +299,11 @@ class Window(Frame):
     def executeReg(self, understand):
         if understand == True:
             self.executevar.set('I got it. Executing the command... Done!')
+
+    def voiceHelp(self):
+        messagebox.showinfo('Voice Recognition', '1. To report properly: You say a sentence which contains at least one word:"before", "past", "previous" and "report".'
+                                                 '\n\n2. To forecast properly: You say a sentence which contains at least one word: "forecast", "after", "next" and "future".\n\n'
+                                                 '3.If you want only one store to report or forecast, the sentence you said must contain a number.')
 
 
 class Report:
