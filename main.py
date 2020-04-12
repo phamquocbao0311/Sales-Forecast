@@ -81,8 +81,6 @@ class Window(Frame):
 
         self.master.config(menu=self.menubar)
 
-
-
     def create_table(self):
         self.TableMargin = Frame(self.master, width=1000, height = 328)
         self.TableMargin.pack(side=TOP, fill= None)
@@ -157,7 +155,7 @@ class Window(Frame):
             else:
                 df = sum_weekly_sale_by_week(pd_data, int(self.number[0]))
                 self.a.set_title("The weekly sales volume of the store's id: " + str(self.number[0]))
-                self.change_data_tree()
+                self.change_data_tree(idx = str(self.number[0]))
         theta = df.Date
         r = df.Weekly_Sales
         self.a.plot(theta, r)
@@ -175,7 +173,7 @@ class Window(Frame):
                 forecastData = self.model.get_predict(idx)
                 actualData = self.model.get_actual(idx)
                 self.a.set_title("The weekly forecast sales volume of the store's id: " + str(idx))
-                self.change_data_tree()
+                self.change_data_tree(idx = str(self.number[0]))
         else:
             if str(self.comboboxForecast.get()) == 'All':
                 forecastData = self.model.get_predict()
@@ -199,6 +197,7 @@ class Window(Frame):
 
     def change_data_tree(self, idx = None):
         self.tree.delete(*self.tree.get_children())
+        print(idx)
         if idx == None:
             for i in range(len(data[:1000])):
                 self.tree.insert("", END, values=data[i][1:])
@@ -249,40 +248,50 @@ class Window(Frame):
             self.titlevar = StringVar()
             self.titlevar.set('Please press Speak button to start!')
             self.titleLabel = Label(master = self.recognition, text = 'Voice Recognition', font = 'Times 16 bold italic', fg = 'blue').pack()
-            self.content = Label(master = self.recognition, textvariable = self.titlevar, font = 'Times 12', fg = 'blue').pack()
+            self.content = Label(master = self.recognition, textvariable = self.titlevar, font = 'Times 14', fg = 'blue').pack()
             self.buttonForecast = Button(master=self.recognition, text='Start',
-                                 command=self.voicReg)
+                                 command=self.voicReg,  font = 'Times 14')
             self.buttonForecast.pack()
-            self.buttonForecast.place(x = 240, y = 100)
-            # self.contentvar = StringVar()
-            # self.contentvar.set('sfsdfsfsdf')
-            # self.contentlabel = Label(master= self.recognition, textvariable = self.contentvar, font = 'Times 12', fg = 'blue').pack()
-            # self.contentlabel.place(x = 200, y = 128)
+            self.contentvar = StringVar()
+            self.contentlabel = Label(master= self.recognition, textvariable = self.contentvar, font = 'Times 14', fg = 'blue')
+            self.contentlabel.pack()
+            self.executevar = StringVar()
+            self.executelabel = Label(master=self.recognition, textvariable=self.executevar, font='Times 14', fg='blue')
+            self.executelabel.pack()
 
     def voicReg(self):
         guess = recognize_speech_from_mic(self.recognizer, self.microphone)
-        # guess["transcription"] = 'before 5'
+        # guess["transcription"] = 'before 9'
         if guess["error"]:
-            self.titlevar.set('Error: '+ guess['error'])
+            self.contentvar.set('Error: '+ guess['error'])
             # return
 
         if guess["transcription"]:
-            self.contentlabel.set('You said: ' + guess['transcription'])
+            self.contentvar.set('You said: ' + guess['transcription'])
             newString = convertStringToInt(guess["transcription"])
             self.number = [int(s) for s in newString.split() if s.isdigit()]
             if 'report' in newString or 'before' in newString or 'previous' in newString or 'past' in newString:
                 if self.number:
+                    self.executeReg(True)
                     self.plot(voice=True, idx=self.number[0])
                 else:
+                    self.executeReg(True)
                     self.plot(voice=True)
             else:
                 if 'forecast' in newString or 'after' in newString or 'next' in newString or 'future' in newString:
                     if self.number:
+                        self.executeReg(True)
                         self.plotForecast(voice=True, idx=self.number[0])
                     else:
+                        self.executeReg(True)
                         self.plotForecast(voice=True)
         else:
-            self.titlevar.set("I didn't catch that. Please press the start button again!")
+            self.contentvar.set("I didn't catch that. What did you say?")
+
+    def executeReg(self, understand):
+        if understand == True:
+            self.executevar.set('I got it. Executing the command... Done!')
+
 
 class Report:
     def __init__(self, root):
