@@ -10,7 +10,7 @@ from preprocessingData import read_data, read_datapd, sum_weekly_sale_by_week, g
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from model import Model
-from voiceRecognition import recognize_speech_from_mic
+from voiceRecognition import recognize_speech_from_mic, convertStringToInt
 import time
 import speech_recognition as sr
 
@@ -156,8 +156,8 @@ class Window(Frame):
                 self.change_data_tree()
             else:
                 df = sum_weekly_sale_by_week(pd_data, int(self.number[0]))
-                self.a.set_title("The weekly sales volume of the store's id: " + self.number[0])
-                self.change_data_tree(idx=self.number[0])
+                self.a.set_title("The weekly sales volume of the store's id: " + str(self.number[0]))
+                self.change_data_tree()
         theta = df.Date
         r = df.Weekly_Sales
         self.a.plot(theta, r)
@@ -174,8 +174,8 @@ class Window(Frame):
             else:
                 forecastData = self.model.get_predict(idx)
                 actualData = self.model.get_actual(idx)
-                self.a.set_title("The weekly forecast sales volume of the store's id: " + idx)
-                self.change_data_tree(idx=idx)
+                self.a.set_title("The weekly forecast sales volume of the store's id: " + str(idx))
+                self.change_data_tree()
         else:
             if str(self.comboboxForecast.get()) == 'All':
                 forecastData = self.model.get_predict()
@@ -257,24 +257,26 @@ class Window(Frame):
 
     def voicReg(self):
         guess = recognize_speech_from_mic(self.recognizer, self.microphone)
+        # guess["transcription"] = 'before 5'
         if guess["error"]:
             self.titlevar.set('Error: '+ guess['error'])
+            # return
 
         if guess["transcription"]:
-            self.titlevar.set(guess['transcription'])
-            self.number = [int(s) for s in guess['transcription'].split() if s.isdigit()]
-            if 'report' in guess['transcription'].lower():
-                if 'all' in guess['transcription']:
-                    self.plot(voice=True)
+            self.titlevar.set('You said: ' + guess['transcription'])
+            newString = convertStringToInt(guess["transcription"])
+            self.number = [int(s) for s in newString.split() if s.isdigit()]
+            if 'report' in newString or 'before' in newString or 'previous' in newString or 'past' in newString:
+                if self.number:
+                    self.plot(voice=True, idx=self.number[0])
                 else:
-                    if self.number:
-                        self.plot(voice=True, idx=self.number[0])
+                    self.plot(voice=True)
             else:
-                if 'forecast' in guess['transcription'].lower():
-                    if 'all' in guess['transcription']:
-                        pass
-
-                pass
+                if 'forecast' in newString or 'after' in newString or 'next' in newString or 'future' in newString:
+                    if self.number:
+                        self.plotForecast(voice=True, idx=self.number[0])
+                    else:
+                        self.plotForecast(voice=True)
         else:
             self.titlevar.set("I didn't catch that. Please press the start button again!")
 
