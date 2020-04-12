@@ -244,16 +244,20 @@ class Window(Frame):
             self.recognition = Toplevel(self.master)
             _class(self.recognition)
 
-        self.recognition.geometry("512x256")
-        self.recognition.resizable(0, 0)
-        self.titlevar = StringVar()
-        self.titlevar.set('Please press Speak button to start!')
-        self.titleLabel = Label(master = self.recognition, text = 'Voice Recognition', font = 'Times 16 bold italic', fg = 'blue').pack()
-        self.content = Label(master = self.recognition, textvariable = self.titlevar, font = 'Times 12', fg = 'blue').pack()
-        self.buttonForecast = Button(master=self.recognition, text='Start',
-                             command=self.voicReg)
-        self.buttonForecast.pack()
-        self.buttonForecast.place(x = 240, y = 128)
+            self.recognition.geometry("512x256")
+            self.recognition.resizable(0, 0)
+            self.titlevar = StringVar()
+            self.titlevar.set('Please press Speak button to start!')
+            self.titleLabel = Label(master = self.recognition, text = 'Voice Recognition', font = 'Times 16 bold italic', fg = 'blue').pack()
+            self.content = Label(master = self.recognition, textvariable = self.titlevar, font = 'Times 12', fg = 'blue').pack()
+            self.buttonForecast = Button(master=self.recognition, text='Start',
+                                 command=self.voicReg)
+            self.buttonForecast.pack()
+            self.buttonForecast.place(x = 240, y = 100)
+            # self.contentvar = StringVar()
+            # self.contentvar.set('sfsdfsfsdf')
+            # self.contentlabel = Label(master= self.recognition, textvariable = self.contentvar, font = 'Times 12', fg = 'blue').pack()
+            # self.contentlabel.place(x = 200, y = 128)
 
     def voicReg(self):
         guess = recognize_speech_from_mic(self.recognizer, self.microphone)
@@ -263,7 +267,7 @@ class Window(Frame):
             # return
 
         if guess["transcription"]:
-            self.titlevar.set('You said: ' + guess['transcription'])
+            self.contentlabel.set('You said: ' + guess['transcription'])
             newString = convertStringToInt(guess["transcription"])
             self.number = [int(s) for s in newString.split() if s.isdigit()]
             if 'report' in newString or 'before' in newString or 'previous' in newString or 'past' in newString:
