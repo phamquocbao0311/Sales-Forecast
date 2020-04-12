@@ -293,8 +293,10 @@ class Window(Frame):
                     else:
                         self.executeReg(True)
                         self.plotForecast(voice=True)
+                else:
+                    self.executevar.set("I don't know what you want.")
         else:
-            self.contentvar.set("I didn't catch that. What did you say?")
+            self.executevar.set("I didn't catch that. What did you say?")
 
     def executeReg(self, understand):
         if understand == True:
