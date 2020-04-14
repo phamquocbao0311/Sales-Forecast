@@ -6,7 +6,7 @@ import csv
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from matplotlib.figure import Figure
-from preprocessingData import read_data, read_datapd, sum_weekly_sale_by_week, get_data
+from preprocessingData import read_data, read_datapd, sum_weekly_sale_by_week, get_data, sum_weekly_sale_by_month
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 from model import Model
@@ -30,6 +30,7 @@ class Window(Frame):
         self.model = Model()
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
+        # print(sum_weekly_sale_by_month(pd_data))
 
     def init_window(self):
         self.master.title('Sale Forecast')
@@ -41,9 +42,9 @@ class Window(Frame):
         self.label_chart.place(x = 40, y = 10)
 
         #Add button
-        self.button = Button(master=self.master, text='Voice Recognition',font = 'Times 14 ', command = lambda: self.regWin(Recognition).pack())
-        self.button.pack()
-        self.button.place(y = 875, x = 500)
+        # self.button = Button(master=self.master, text='Voice Recognition',font = 'Times 14 ', command = lambda: self.regWin(Recognition).pack())
+        # self.button.pack()
+        # self.button.place(y = 875, x = 500)
 
         self.matplotCanvas()
         self.create_table()
@@ -72,7 +73,11 @@ class Window(Frame):
         self.fucntion = Menu(self.menubar, tearoff=0)
         self.fucntion.add_command(label="Report", command=lambda: self.report_window(Report).pack())
         self.fucntion.add_command(label="Forecast", command = lambda: self.forecast_window(Forecast).pack())
-        self.menubar.add_cascade(label="Function", menu=self.fucntion)
+        self.menubar.add_cascade(label="View", menu=self.fucntion)
+
+        self.voicemenubar = Menu(self.menubar, tearoff=0)
+        self.voicemenubar.add_command(command = lambda: self.regWin(Recognition).pack(), label = 'Voice Recognition')
+        self.menubar.add_cascade(label = 'Voice', menu = self.voicemenubar, command = lambda: self.regWin(Recognition).pack())
 
         self.help = Menu(self.menubar, tearoff=0)
         self.help.add_command(label='Voice Recognition', command = self.voiceHelp)
