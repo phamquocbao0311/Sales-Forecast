@@ -127,7 +127,7 @@ class Window(Frame):
         self.new.geometry("512x256")
         self.new.resizable(0,0)
 
-        self.combobox = ttk.Combobox(self.new, values = ['All'] + list(set(pd_data.Store)),font = 'Times 14 ')
+        self.combobox = ttk.Combobox(self.new, values = ['All'] + list(set(pd_data.Outlet)),font = 'Times 14 ')
         self.combobox.pack()
         self.combobox.current(0) #combobox.get()
         self.combobox.place(x = 300, y = 20)
@@ -231,7 +231,7 @@ class Window(Frame):
         self.forcast.geometry("512x256")
         self.forcast.resizable(0, 0)
 
-        self.comboboxForecast = ttk.Combobox(self.forcast, values=['All'] + list(set(pd_data.Store)),font = 'Times 14 ')
+        self.comboboxForecast = ttk.Combobox(self.forcast, values=['All'] + list(set(pd_data.Outlet)),font = 'Times 14 ')
         self.comboboxForecast.pack()
         self.comboboxForecast.current(0)  # combobox.get()
         self.comboboxForecast.place(x=300, y=20)

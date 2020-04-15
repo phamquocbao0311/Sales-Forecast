@@ -27,7 +27,7 @@ def sum_weekly_sale_by_week(df, idx = None):
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
     else:
-        df = df[df['Store'] == idx]
+        df = df[df['Outlet'] == idx]
         df_average_sales_week = df.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
@@ -41,7 +41,7 @@ def sum_weekly_sale_by_month(df, idx = None):
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
     else:
-        df = df[df['Store'] == idx]
+        df = df[df['Outlet'] == idx]
         df_average_sales_week = df.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
