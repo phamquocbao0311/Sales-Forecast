@@ -87,7 +87,7 @@ class Window(Frame):
         self.master.config(menu=self.menubar)
 
     def create_table(self):
-        self.TableMargin = Frame(self.master, width=1000, height = 328)
+        self.TableMargin = Frame(self.master, width=1000, height = 256)
         self.TableMargin.pack(side=TOP, fill= None)
         self.TableMargin.place(x = 40, y = 524)
         self.TableMargin.pack_propagate(0)
@@ -329,7 +329,7 @@ class Recognition:
 
 def main():
     root = Tk();
-    root.geometry("1080x960")
+    root.geometry("1080x900")
     root.resizable(0,0)
     window = Window(root)
     root.mainloop()
