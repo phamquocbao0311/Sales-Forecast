@@ -102,11 +102,14 @@ class Window(Frame):
 
         for i in range(16):
             self.tree.heading(column[i], text=column[i], anchor=CENTER)
+            if i == 13 or i == 14:
+                self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=130, anchor=CENTER)
+                continue
             if i == 0:
                 self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=0, anchor=CENTER)
             else:
                 self.tree.column('#' + str(i), stretch=NO, minwidth=100, width=100, anchor=CENTER)
-        self.tree.column('#16', stretch=NO, minwidth=100, width=100)
+        self.tree.column('#16', stretch=NO, minwidth=100, width=100, anchor=CENTER)
         self.tree.tag_configure('odd', background='#E8E8E8')
         self.tree.tag_configure('even', background='#f7f7f9')
         self.tree.tag_configure('column', background='#b8dcff')
