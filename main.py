@@ -30,7 +30,7 @@ class Window(Frame):
         self.model = Model()
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
-        # print(sum_weekly_sale_by_month(pd_data))
+        print(column)
 
     def init_window(self):
         self.master.title('Sale Forecast')
@@ -94,8 +94,7 @@ class Window(Frame):
 
         self.scrollbarx = Scrollbar(self.TableMargin, orient=HORIZONTAL)
         self.scrollbary = Scrollbar(self.TableMargin, orient=VERTICAL)
-        self.tree = ttk.Treeview(self.TableMargin, columns=('Store', 'Dept', 'Date', 'Weekly_Sales', 'IsHoliday', 'Temperature', 'Fuel_Price', 'MarkDown1', 'MarkDown2', 'MarkDown3', 'MarkDown4', 'MarkDown5', 'CPI', 'Unemployment', 'Type', 'Size'), height=200,
-                            selectmode="extended", yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
+        self.tree = ttk.Treeview(self.TableMargin, columns= column, selectmode="extended", yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
         self.scrollbary.config(command=self.tree.yview)
         self.scrollbary.pack(side=RIGHT, fill=Y)
         self.scrollbarx.config(command=self.tree.xview)
