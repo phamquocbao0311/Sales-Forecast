@@ -87,14 +87,14 @@ class Window(Frame):
         self.master.config(menu=self.menubar)
 
     def create_table(self):
-        self.TableMargin = Frame(self.master, width=1000, height = 256)
+        self.TableMargin = Frame(self.master, width=1000, height = 328)
         self.TableMargin.pack(side=TOP, fill= None)
         self.TableMargin.place(x = 40, y = 524)
         self.TableMargin.pack_propagate(0)
 
         self.scrollbarx = Scrollbar(self.TableMargin, orient=HORIZONTAL)
         self.scrollbary = Scrollbar(self.TableMargin, orient=VERTICAL)
-        self.tree = ttk.Treeview(self.TableMargin, columns= column, selectmode="extended", yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set)
+        self.tree = ttk.Treeview(self.TableMargin, columns= column, selectmode="extended", yscrollcommand=self.scrollbary.set, xscrollcommand=self.scrollbarx.set, height = 300)
         self.scrollbary.config(command=self.tree.yview)
         self.scrollbary.pack(side=RIGHT, fill=Y)
         self.scrollbarx.config(command=self.tree.xview)
@@ -114,7 +114,7 @@ class Window(Frame):
         self.tree.tag_configure('even', background='#f7f7f9')
         self.tree.tag_configure('column', background='#b8dcff')
         self.change_data_tree()
-        self.tree.pack(fill = X, expand = NO)
+        self.tree.pack(fill = X, expand = NO, side = TOP)
 
     def report_window(self, _class):
         try:
