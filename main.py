@@ -196,8 +196,8 @@ class Window(Frame):
                 self.change_data_tree(idx = self.comboboxForecast.get())
         df = sum_weekly_sale_by_week(pd_data)
         theta = df.Date
-        self.a.plot(theta.iloc[-33:], actualData, label = 'The actual data')
-        self.a.plot(theta.iloc[-33:], forecastData, label = 'The predicted data')
+        self.a.plot(theta.iloc[-28:], actualData[-28:], label = 'The actual data')
+        self.a.plot(theta.iloc[-28:], forecastData[-28:], label = 'The predicted data')
         self.a.legend()
         self.canvas.draw()
         self.a.clear()
