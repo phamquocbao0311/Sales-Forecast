@@ -30,7 +30,7 @@ class Window(Frame):
         self.model = Model()
         self.recognizer = sr.Recognizer()
         self.microphone = sr.Microphone()
-        print(column)
+        print(self.model.xtest.shape, self.model.ytest.shape)
 
     def init_window(self):
         self.master.title('Sale Forecast')
@@ -154,7 +154,7 @@ class Window(Frame):
                 self.change_data_tree()
             else:
                 df = sum_weekly_sale_by_week(pd_data, int(self.combobox.get()))
-                self.a.set_title("The weekly sales volume of the store's id: " + self.combobox.get())
+                self.a.set_title("The weekly sales volume of the outlet's id: " + self.combobox.get())
                 self.change_data_tree(idx = self.combobox.get())
         else:
             if idx == None:
@@ -163,7 +163,7 @@ class Window(Frame):
                 self.change_data_tree()
             else:
                 df = sum_weekly_sale_by_week(pd_data, int(self.number[0]))
-                self.a.set_title("The weekly sales volume of the store's id: " + str(self.number[0]))
+                self.a.set_title("The weekly sales volume of the outlet's id: " + str(self.number[0]))
                 self.change_data_tree(idx = str(self.number[0]))
         theta = df.Date
         r = df.Weekly_Sales
@@ -171,7 +171,8 @@ class Window(Frame):
         self.canvas.draw()
         self.a.clear()
 
-    def plotForecast(self, voice = False, idx = None):
+    def plotForecast(self,period, voice = False, idx = None):
+        self.f.autofmt_xdate()
         if voice:
             if idx == None:
                 forecastData = self.model.get_predict()
@@ -179,9 +180,9 @@ class Window(Frame):
                 self.a.set_title('The total weekly forecast sales volume of the retail chain')
                 self.change_data_tree()
             else:
-                forecastData = self.model.get_predict(idx)
-                actualData = self.model.get_actual(idx)
-                self.a.set_title("The weekly forecast sales volume of the store's id: " + str(idx))
+                forecastData = self.model.get_predict(int(idx))
+                actualData = self.model.get_actual(int(idx))
+                self.a.set_title("The weekly forecast sales volume of the outlet's id: " + str(idx))
                 self.change_data_tree(idx = str(self.number[0]))
         else:
             if str(self.comboboxForecast.get()) == 'All':
@@ -192,21 +193,70 @@ class Window(Frame):
             else:
                 forecastData = self.model.get_predict(int(self.comboboxForecast.get()))
                 actualData = self.model.get_actual(int(self.comboboxForecast.get()))
-                self.a.set_title("The weekly forecast sales volume of the store's id: " + self.comboboxForecast.get())
+                self.a.set_title("The weekly forecast sales volume of the outlet's id: " + self.comboboxForecast.get())
                 self.change_data_tree(idx = self.comboboxForecast.get())
         df = sum_weekly_sale_by_week(pd_data)
         theta = df.Date
-        self.a.plot(theta.iloc[-28:], actualData[-28:], label = 'The actual data')
-        self.a.plot(theta.iloc[-28:], forecastData[-28:], label = 'The predicted data')
-        self.a.legend()
-        self.canvas.draw()
-        self.a.clear()
+        if period == 'Week':
+            if idx.isdigit():
+            # [str(i).split(' ')[0] for i in theta.iloc[-36:-27].tolist()]
+                df = sum_weekly_sale_by_week(pd_data, idx=int(idx))
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-33:-28].tolist()], df.Weekly_Sales[-33:-28],
+                            label='The actual data')
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-len(forecastData):-24]], forecastData[-len(forecastData):-24],
+                            label='The predicted data')
+            else:
 
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-33:-28].tolist()], df.Weekly_Sales[-33:-28],
+                            label='The actual data')
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-len(forecastData):-24]], forecastData[-len(forecastData):-24],
+                            label='The predicted data')
+            print(forecastData)
+            self.a.legend()
+            self.canvas.draw()
+            self.a.clear()
+
+    def voiceForecast(self,period, voice = False, idx = None):
+        self.f.autofmt_xdate()
+        if voice:
+            if idx == None:
+                forecastData = self.model.get_predict()
+                actualData = self.model.get_actual()
+                self.a.set_title('The total weekly forecast sales volume of the retail chain')
+                self.change_data_tree()
+            else:
+                forecastData = self.model.get_predict(int(idx))
+                actualData = self.model.get_actual(int(idx))
+                self.a.set_title("The weekly forecast sales volume of the outlet's id: " + str(idx))
+                self.change_data_tree(idx = str(self.number[0]))
+        df = sum_weekly_sale_by_week(pd_data)
+        theta = df.Date
+        if period == 'Week':
+            if idx == None:
+            # [str(i).split(' ')[0] for i in theta.iloc[-36:-27].tolist()]
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-33:-28].tolist()], df.Weekly_Sales[-33:-28],
+                            label='The actual data')
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-len(forecastData):-24]],
+                            forecastData[-len(forecastData):-24],
+                        label='The predicted data')
+            else:
+
+                df = sum_weekly_sale_by_week(pd_data, idx=int(idx))
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-33:-28].tolist()], df.Weekly_Sales[-33:-28],
+                            label='The actual data')
+                self.a.plot([str(i).split(' ')[0] for i in theta.iloc[-len(forecastData):-24]],
+                            forecastData[-len(forecastData):-24],
+                            label='The predicted data')
+
+            print(forecastData)
+            self.a.legend()
+            self.canvas.draw()
+            self.a.clear()
 
 
     def change_data_tree(self, idx = None):
         self.tree.delete(*self.tree.get_children())
-        print(idx)
+        # print(idx)
         if idx == None:
             for i in range(len(data[:1000])):
                 if i%2 == 0:
@@ -246,7 +296,7 @@ class Window(Frame):
         self.label_time_forecast.pack()
         self.label_time_forecast.place(x=20, y=60)
 
-        self.button_show_forcast = Button(master=self.forcast, command=self.plotForecast, text='Forecast',font = 'Times 14 ')
+        self.button_show_forcast = Button(master=self.forcast, command= lambda: self.plotForecast(period=self.comboboxtimeForecast.get(), idx=self.comboboxForecast.get()), text='Forecast',font = 'Times 14 ')
         self.button_show_forcast.pack()
         self.button_show_forcast.place(y=150, x=250)
 
@@ -276,7 +326,7 @@ class Window(Frame):
 
     def voicReg(self):
         guess = recognize_speech_from_mic(self.recognizer, self.microphone)
-        # guess["transcription"] = 'before 9'
+        # guess["transcription"] = 'next week 1'
         if guess["error"]:
             self.contentvar.set('Error: '+ guess['error'])
             # return
@@ -294,12 +344,13 @@ class Window(Frame):
                     self.plot(voice=True)
             else:
                 if 'forecast' in newString or 'after' in newString or 'next' in newString or 'future' in newString:
-                    if self.number:
-                        self.executeReg(True)
-                        self.plotForecast(voice=True, idx=self.number[0])
-                    else:
-                        self.executeReg(True)
-                        self.plotForecast(voice=True)
+                    if 'week' in newString or 'weekly' in newString or 'weeks' in newString:
+                        if self.number:
+                            self.executeReg(True)
+                            self.voiceForecast(period='Week',voice=True, idx=self.number[0])
+                        else:
+                            self.executeReg(True)
+                            self.voiceForecast(period='Week',voice=True)
                 else:
                     self.executevar.set("I don't know what you want.")
         else:

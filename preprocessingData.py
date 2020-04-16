@@ -22,6 +22,7 @@ def read_datapd():
     return file
 
 def sum_weekly_sale_by_week(df, idx = None):
+    df.Date = pd.to_datetime(df.Date)
     if idx == None:
         df_average_sales_week = df.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
@@ -36,15 +37,18 @@ def get_data(df, idx):
     return df[[df.Store == idx]]
 
 def sum_weekly_sale_by_month(df, idx = None):
+    df.Date = pd.to_datetime(df.Date)
+    # df.set_index(['Date'])
     if idx == None:
-        df_average_sales_week = df.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
+        df_average_sales_week = df.resample('M')['Weekly_Sales'].sum()
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
     else:
         df = df[df['Outlet'] == idx]
-        df_average_sales_week = df.groupby(by=['Date'], as_index=False)['Weekly_Sales'].sum()
+        df_average_sales_week = df.groupby('month')['Weekly_Sales'].sum()
         df_average_sales = df_average_sales_week.sort_values('Weekly_Sales', ascending=False)
         return df_average_sales_week
+
 
 
 
